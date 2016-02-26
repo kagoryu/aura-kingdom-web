@@ -1,0 +1,84 @@
+Step 1 - Update perl installation.
+        > Remove old php version
+        yum list installed | grep php
+        yum remove php.x86_64 php-cli.x86_64 php-common.x86_64 php-gd.x86_64 php-ldap.x86_64 php-mbstring.x86_64 php-mcrypt.x86_64 php-mysql.x86_64 php-pdo.x86_64
+        > Install latest repository
+        rpm -Uvh http://mirror.webtatic.com/yum/el6/latest.rpm
+        > Install new php version
+        yum list available | grep php56
+        yum install php56w.x86_64 php56w-cli.x86_64 php56w-common.x86_64 php56w-devel.x86_64 php56w-gd.x86_64 php56w-mysql.x86_64 php56w-pdo.x86_64 php56w-pear.noarch php56w-pecl-memcache.x86_64 php56w-pgsql.x86_64 php56w-pspell.x86_64 php56w-snmp.x86_64 php56w-xml.x86_64 php56w-xmlrpc.x86_64  php56w-mbstring.x86_64
+Step 2 - Install composer
+        > Go to /tmp folder
+        cd /tmp
+        > Download the composer.phar file
+        curl -sS https://getcomposer.org/installer | php
+        > Move it to the local bin
+        mv composer.phar /usr/local/bin/composer
+Step 3 - Download the latest release and unpack
+        wget https://github.com/huludini/aura-kingdom-web/archive/master.zip
+        yum install unzip
+        mv aura-kingdom-web /var/www/
+Step 4 - Setup Aura Kingdom Web
+        > Go to aura-kingdom-web directory
+        cd /var/www/aura-kingdom-web
+        > Rename the .env.sample file
+        mv .env.sample .env
+        > Edit the .env
+        nano .env
+        * if nano is not installed, yum install nano
+        > Modify the info required
+        > Set permissions
+        chmod -R 777 storage/app/
+        chmod -R 777 storage/framework/
+        chmod -R 777 storage/logs/
+        chmod -R 777 bootstrap/cache/
+        chmod -R 777 .env
+Step 5 - Installation proper
+        > Run the command
+        composer install
+        * Reference tail-end of a successful build
+        ------------------------------------------
+          > php artisan clear-compiled
+          > php artisan optimize
+          Generating optimized class loader
+          Compiling common classes
+          [root@AK aura-kingdom-web-master]#
+          ------------------------------------------
+        php artisan migrate --seed
+        * Reference tail-end of a successful build
+        ------------------------------------------
+        Seeded: SettingsTableSeeder
+        Seeded: ApplicationTableSeeder
+        Seeded: ArticlesTableSeeder
+        Seeded: RolesTableSeeder
+        Seeded: PermissionsTableSeeder
+        [root@AK aura-kingdom-web-master]#
+        ------------------------------------------
+        php artisan key:generate
+        * Reference tail-end of a successful build
+        ------------------------------------------
+        Could not fetch https://api.github.com/repos/thephpleague/omnipay-multisafepay/zipball/a0f09abf404ca0dd21b553578d7f95df2bfa5318, please create a GitHub OAuth token to go over the API rate limit
+        Head to https://github.com/settings/tokens/new?scopes=repo&description=Composer+on+AK+2016-02-22+0701 
+        > Click the link above, you need to register/logon your GitHub account and it will take you to a page with the generated token
+        to retrieve a token. It will be stored in "/root/.composer/auth.json" for future use by Composer.
+        Token (hidden): > Paste the generated token here
+        Token stored successfully.
+        ------------------------------------------
+Step 6 - Configure web server (Apache)
+        > Minimum configuration required
+        nano /etc/httpd/conf/httpd.conf
+              <VirtualHost *:80>
+              ServerAdmin admin@your-domain.com
+              DocumentRoot /var/www/aura-kingdom-web/public
+              ServerName your-domain.com
+              ErrorLog logs/your-domain.com-error_log
+              CustomLog logs/your-domain.com-access_log common
+              </VirtualHost>
+              <Directory "/var/www/aura-kingdom-web/public/">
+              Options Indexes FollowSymLinks MultiViews
+              AllowOverride All
+              Order allow,deny
+              Allow from all
+              </Directory>
+Step 7 - Go to your web browser and type the IP or DOMAIN and follow the simple 4-step wizard.
+        
